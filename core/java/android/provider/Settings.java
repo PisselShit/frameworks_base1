@@ -7181,6 +7181,11 @@ public final class Settings {
         public static final String WIFI_STANDARD_ICON = "wifi_standard_icon";
 
         /**
+         * @hide
+         */
+        public static final String ISLAND_NOTIFICATION = "island_notification";
+
+        /**
          * Whether to control brightness from status bar
          * 0 = 0ff, 1 = on
          * @hide

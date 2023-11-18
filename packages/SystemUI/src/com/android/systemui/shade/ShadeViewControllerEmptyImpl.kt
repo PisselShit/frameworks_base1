@@ -113,6 +113,7 @@ open class ShadeViewControllerEmptyImpl @Inject constructor() :
     override val shadeHeadsUpTracker = ShadeHeadsUpTrackerEmptyImpl()
     override val shadeFoldAnimator = ShadeFoldAnimatorEmptyImpl()
     override val udfpsTransitionToFullShadeProgress = MutableStateFlow(0f)
+    override fun showIsland(show: Boolean) {}
 }
 
 class ShadeHeadsUpTrackerEmptyImpl : ShadeHeadsUpTracker {
