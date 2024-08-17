@@ -99,4 +99,7 @@
 
     <!-- Cycle through ringer modes -->
     <java-symbol type="string" name="volume_dialog_ringer_guidance_normal" />
+
+    <!-- Pulse brightness -->
+    <java-symbol type="integer" name="config_screenBrightnessPulse" />
 </resources>
