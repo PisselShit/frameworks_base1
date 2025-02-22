@@ -6808,6 +6808,11 @@ public final class Settings {
         public static final String NAVBAR_LONG_PRESS_GESTURE = "navbar_long_press_gesture";
 
         /**
+         * @hide
+         */
+        public static final String ONGOING_ACTION_CHIP = "ongoing_action_chip";
+
+        /**
          * IMPORTANT: If you add a new public settings you also have to add it to
          * PUBLIC_SETTINGS below. If the new setting is hidden you have to add
          * it to PRIVATE_SETTINGS below. Also add a validator that can validate
