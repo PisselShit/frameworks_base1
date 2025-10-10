@@ -7191,6 +7191,11 @@ public final class Settings {
         public static final String ISLAND_NOTIFICATION_NOW_PLAYING = "island_notification_now_playing";
 
         /**
+         * @hide
+         */
+        public static final String ISLAND_TRANSPARENT_BACKGROUND = "island_transparent_background";
+
+        /**
          * Whether to control brightness from status bar
          * 0 = 0ff, 1 = on
          * @hide

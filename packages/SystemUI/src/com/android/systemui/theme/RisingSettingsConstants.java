@@ -22,7 +22,8 @@ public class RisingSettingsConstants {
     public static final String[] SYSTEM_SETTINGS_KEYS = {
         "status_bar_logo",
         "statusbar_clock_chip",
-        "qs_show_data_usage_tile"
+        "qs_show_data_usage_tile",
+        "island_transparent_background"
     };
     
     public static final String[] SECURE_SETTINGS_KEYS = {
