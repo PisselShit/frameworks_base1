@@ -68,7 +68,9 @@ import android.graphics.drawable.TransitionDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.PowerManager;
+import android.os.UserHandle;
 import android.os.Trace;
 import android.provider.Settings;
 import android.util.IndentingPrintWriter;
@@ -403,6 +405,8 @@ public final class NotificationPanelViewController implements
     private int mDisplayTopInset = 0; // in pixels
     private int mDisplayRightInset = 0; // in pixels
     private int mDisplayLeftInset = 0; // in pixels
+
+    private ContentObserver mIslandMarginObserver;
 
     @VisibleForTesting
     KeyguardClockPositionAlgorithm mClockPositionAlgorithm;
@@ -3793,6 +3797,20 @@ public final class NotificationPanelViewController implements
             // Theme might have changed between inflating this view and attaching it to the
             // window, so
             // force a call to onThemeChanged
+
+            mIslandMarginObserver = new ContentObserver(new Handler(Looper.getMainLooper())) {
+                @Override
+                public void onChange(boolean selfChange) {
+                    updateIslandMargin();
+                }
+            };
+            mContentResolver.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.ISLAND_MARGIN_TOP),
+                    false,
+                    mIslandMarginObserver,
+                    UserHandle.USER_ALL
+            );
+
             mConfigurationListener.onThemeChanged();
             mFalsingManager.addTapListener(mFalsingTapListener);
             mKeyguardIndicationController.init();
@@ -3807,6 +3825,10 @@ public final class NotificationPanelViewController implements
             mStatusBarHeaderMachine.removeObserver(this);
             mTunerService.removeTunable(this);
             mFalsingManager.removeTapListener(mFalsingTapListener);
+            if (mIslandMarginObserver != null) {
+                mContentResolver.unregisterContentObserver(mIslandMarginObserver);
+                mIslandMarginObserver = null;
+            }
         }
 
         @Override
@@ -4598,6 +4620,12 @@ public final class NotificationPanelViewController implements
     protected void updateIslandVisibility() {
         if (mUseIslandNotification && mUseHeadsUp) {
             mNotifIsland.updateIslandVisibility(getExpandedFraction());
+        }
+    }
+
+    private void updateIslandMargin() {
+        if (mNotifIsland != null) {
+            mNotifIsland.updateMarginFromSettings();
         }
     }
 }

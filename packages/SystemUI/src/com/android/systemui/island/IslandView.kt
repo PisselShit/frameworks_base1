@@ -93,6 +93,7 @@ class IslandView : ExtendedFloatingActionButton {
         private const val SCALE_END = 1f
         private const val ALPHA_START = 0f
         private const val ALPHA_END = 1f
+        private const val DEFAULT_MARGIN_TOP = 45
     }
 
     private var notificationStackScroller: WeakReference<NotificationStackScrollLayout>? = null
@@ -168,7 +169,7 @@ class IslandView : ExtendedFloatingActionButton {
         gestureHandler = null
         bgExecutor.shutdownNow()
         handler.removeCallbacksAndMessages(null)
-        // Re-enable compact HUN when island is detached
+	    // Re-enable compact HUN when island is detached
         try {
             SystemProperties.set(PROP_COMPACT_HUN_ALWAYS_SHOW, "1")
         } catch (e: Exception) {
@@ -191,6 +192,7 @@ class IslandView : ExtendedFloatingActionButton {
         notificationManager = IslandNotificationManager(context)
         TaskStackChangeListeners.getInstance().registerTaskStackListener(taskStackChangeListener)
         disableCompactHun()
+        applyMarginTop()
     }
 
     fun setIslandEnabled(enable: Boolean) {
@@ -573,6 +575,29 @@ class IslandView : ExtendedFloatingActionButton {
             0,
             UserHandle.USER_CURRENT
         ) == 1
+    }
+
+    private fun getIslandMarginTop(context: Context): Int {
+        return Settings.System.getIntForUser(
+            context.contentResolver,
+            Settings.System.ISLAND_MARGIN_TOP,
+            DEFAULT_MARGIN_TOP,
+            UserHandle.USER_CURRENT
+        )
+    }
+
+    private fun applyMarginTop() {
+        post {
+            val marginTopDp = getIslandMarginTop(context)
+            val params = this.layoutParams as? ViewGroup.MarginLayoutParams ?: return@post
+            val marginTopPx = dpToPx(marginTopDp.toFloat()).toInt()
+            params.topMargin = marginTopPx
+            this.layoutParams = params
+        }
+    }
+
+    fun updateMarginFromSettings() {
+        applyMarginTop()
     }
 
 }
