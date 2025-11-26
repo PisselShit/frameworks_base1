@@ -142,6 +142,7 @@ import com.android.systemui.demomode.DemoMode;
 import com.android.systemui.demomode.DemoModeController;
 import com.android.systemui.display.dagger.SystemUIDisplaySubcomponent;
 import com.android.systemui.edgelight.EdgeLightViewController;
+import com.android.systemui.charging.ChargingAnimationViewController;
 import com.android.systemui.nowplaying.NowPlayingViewController;
 import com.android.systemui.emergency.EmergencyGesture;
 import com.android.systemui.emergency.EmergencyGestureModule.EmergencyGestureIntentFactory;
@@ -498,6 +499,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces,
     private final PulseViewController mPulseViewController;
     private final EdgeLightViewController mEdgeLightViewController;
     private final NowPlayingViewController mNowPlayingViewController;
+    private final ChargingAnimationViewController mChargingAnimationViewController;
 
     private final GameSpaceManager mGameSpaceManager;
 
@@ -781,6 +783,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces,
             PulseViewController pulseViewController,
             EdgeLightViewController edgeLightViewController,
             NowPlayingViewController nowPlayingViewController,
+            ChargingAnimationViewController chargingAnimationViewController,
             BurnInProtectionController burnInProtectionController
     ) {
         mContext = context;
@@ -936,6 +939,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces,
         mPulseViewController = pulseViewController;
         mEdgeLightViewController = edgeLightViewController;
         mNowPlayingViewController = nowPlayingViewController;
+        mChargingAnimationViewController = chargingAnimationViewController;
     }
 
     private void initBubbles(Bubbles bubbles) {
@@ -1182,6 +1186,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces,
         getNotifContainerParentView().addView(mPulseViewController.getPulseView(), 1);
         getNotifContainerParentView().addView(mEdgeLightViewController.getEdgeLightView(), 2);
         getNotifContainerParentView().addView(mNowPlayingViewController.getNowPlayingView(), 3);
+        getNotifContainerParentView().addView(mChargingAnimationViewController.getChargingView(), 4);
     }
 
     private ViewGroup getNotifContainerParentView() {
