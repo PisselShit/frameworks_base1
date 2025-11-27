@@ -87,6 +87,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.util.fastRoundToInt
 import androidx.compose.ui.viewinterop.AndroidView
@@ -790,6 +791,8 @@ constructor(
                                 onSwipeToDismiss = viewModel::onMediaSwipeToDismiss,
                                 mediaViewModelFactory = viewModel.mediaViewModelFactory,
                                 behavior = viewModel.qqsMediaUiBehavior,
+                                squishiness = squishiness,
+                                isKeyguardState = viewModel.isKeyguardState,
                             )
                         }
                     }
@@ -915,6 +918,7 @@ constructor(
                                         onSwipeToDismiss = viewModel::onMediaSwipeToDismiss,
                                         behavior = viewModel.qsMediaUiBehavior,
                                         update = { translationY = viewModel.qsMediaTranslationY },
+                                        isKeyguardState = viewModel.isKeyguardState,
                                     )
                                 }
                             }
@@ -1422,8 +1426,20 @@ private fun ContentScope.MediaObject(
     mediaPresentationStyle: MediaPresentationStyle,
     onSwipeToDismiss: () -> Unit,
     behavior: MediaUiBehavior,
+    isKeyguardState: Boolean,
+    squishiness: Float = 1f,
     update: UniqueObjectHostView.() -> Unit = {},
 ) {
+    val showStart = 0.89f
+    val expanding = squishiness < showStart
+    val mediaAlpha = when {
+        isKeyguardState -> 1f
+        expanding -> 0f
+        else -> {
+            ((squishiness - showStart) / (1f - showStart))
+                .coerceIn(0f, 1f)
+        }
+    }
     if (MediaControlsInComposeFlag.isEnabled) {
         Element(key = Media.Elements.mediaCarousel, modifier = modifier) {
             Media(
@@ -1435,7 +1451,15 @@ private fun ContentScope.MediaObject(
             )
         }
     } else {
-        Box {
+        Box(
+            modifier =
+                Modifier.graphicsLayer {
+                        scaleX = squishiness
+                        scaleY = squishiness
+                        transformOrigin = TransformOrigin(0.5f, 0.5f)
+                        alpha = mediaAlpha
+                    }
+        ) {
             AndroidView(
                 modifier = modifier,
                 factory = { ctx ->
