@@ -138,6 +138,8 @@ public class QuickSettingsControllerImpl implements QuickSettingsController, Dum
             "lineagesystem:" + LineageSettings.System.STATUS_BAR_QUICK_QS_PULLDOWN;
     private static final String NOTIFICATION_ROW_TRANSPARENCY =
             Settings.Secure.NOTIFICATION_ROW_TRANSPARENCY;
+    private static final String NOTIFICATION_ROW_TRANSPARENCY_LOCKSCREEN =
+            Settings.Secure.NOTIFICATION_ROW_TRANSPARENCY_LOCKSCREEN;
 
     private QS mQs;
     private final Lazy<NotificationPanelViewController> mPanelViewControllerLazy;
@@ -1142,8 +1144,6 @@ public class QuickSettingsControllerImpl implements QuickSettingsController, Dum
 
         // Update the light bar
         mLightBarController.setQsExpanded(mFullyExpanded);
-
-        onTransparencyUpdated(adjustedExpansionFraction);
 
         if (adjustedExpansionFraction == 1.0f || adjustedExpansionFraction == 0.0f) {
             updateTransparencyIfNeeded();
@@ -2338,6 +2338,7 @@ public class QuickSettingsControllerImpl implements QuickSettingsController, Dum
             mQs.setScrollListener(mQsScrollListener);
             mTunerService.addTunable(this, STATUS_BAR_QUICK_QS_PULLDOWN);
             mTunerService.addTunable(this, NOTIFICATION_ROW_TRANSPARENCY);
+            mTunerService.addTunable(this, NOTIFICATION_ROW_TRANSPARENCY_LOCKSCREEN);
             updateExpansion();
         }
 
@@ -2368,19 +2369,11 @@ public class QuickSettingsControllerImpl implements QuickSettingsController, Dum
             if (STATUS_BAR_QUICK_QS_PULLDOWN.equals(key)) {
                 mOneFingerQuickSettingsIntercept = TunerService.parseInteger(newValue, 0);
             } else if (NOTIFICATION_ROW_TRANSPARENCY.equals(key)) {
-                onTransparencyUpdated(0f);
+                updateTransparencyIfNeeded();
+            } else if (NOTIFICATION_ROW_TRANSPARENCY_LOCKSCREEN.equals(key)) {
+                updateTransparencyIfNeeded();
             }
         }
-    }
-
-    private final void onTransparencyUpdated(float expansion) {
-        if (expansion != 0.01f) return;
-        NotificationStackScrollLayoutController controller = mNotificationStackScrollLayoutController;
-        if (controller == null || controller.getView() == null) {
-            return;
-        }
-        NotificationStackScrollLayout view = controller.getView();
-        view.post(() -> view.updateBgColor(mBarState == KEYGUARD));
     }
 
     private void updateTransparencyIfNeeded() {
