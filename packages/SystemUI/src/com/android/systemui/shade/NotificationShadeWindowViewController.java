@@ -73,7 +73,9 @@ import com.android.systemui.statusbar.NotificationShadeDepthController;
 import com.android.systemui.statusbar.NotificationShadeWindowController;
 import com.android.systemui.statusbar.SysuiStatusBarStateController;
 import com.android.systemui.statusbar.core.StatusBarConnectedDisplays;
+import com.android.systemui.island.IslandSceneBridge;
 import com.android.systemui.statusbar.notification.domain.interactor.NotificationLaunchAnimationInteractor;
+import com.android.systemui.statusbar.notification.headsup.HeadsUpManager;
 import com.android.systemui.statusbar.notification.stack.AmbientState;
 import com.android.systemui.statusbar.notification.stack.NotificationStackScrollLayout;
 import com.android.systemui.statusbar.notification.stack.NotificationStackScrollLayoutController;
@@ -160,6 +162,8 @@ public class NotificationShadeWindowViewController implements Dumpable {
     private final ShadeViewController mShadeViewController;
     private final PanelExpansionInteractor mPanelExpansionInteractor;
     private final ShadeExpansionStateManager mShadeExpansionStateManager;
+    private final IslandSceneBridge mIslandSceneBridge;
+    private final HeadsUpManager mHeadsUpManager;
 
     private ViewGroup mBouncerParentView;
     /**
@@ -235,7 +239,9 @@ public class NotificationShadeWindowViewController implements Dumpable {
             ShadeStatusBarComponentsInteractor shadeStatusBarComponentsInteractor,
             DozeTouchInteractor dozeTouchInteractor,
             JavaAdapter javaAdapter,
-            QQSGestureListener qqsGestureListener) {
+            QQSGestureListener qqsGestureListener,
+            IslandSceneBridge islandSceneBridge,
+            HeadsUpManager headsUpManager) {
         mLockscreenShadeTransitionController = transitionController;
         mFalsingCollector = falsingCollector;
         mStatusBarStateController = statusBarStateController;
@@ -265,6 +271,8 @@ public class NotificationShadeWindowViewController implements Dumpable {
         mMainDispatcher = mainDispatcher;
         mShadeStatusBarComponentsInteractor = shadeStatusBarComponentsInteractor;
         mQQSGestureListener = qqsGestureListener;
+        mIslandSceneBridge = islandSceneBridge;
+        mHeadsUpManager = headsUpManager;
 
         // This view is not part of the newly inflated expanded status bar.
         mBrightnessMirror = mView.findViewById(R.id.brightness_mirror_container);
@@ -402,6 +410,9 @@ public class NotificationShadeWindowViewController implements Dumpable {
     /** Inflates the {@link R.layout#status_bar_expanded} layout and sets it up. */
     public void setupExpandedStatusBar() {
         mStackScrollLayout = mView.findViewById(R.id.notification_stack_scroller);
+        if (SceneContainerFlag.isEnabled() && mStackScrollLayout != null) {
+            mIslandSceneBridge.wire(mView, mStackScrollLayout, mHeadsUpManager);
+        }
         mPulsingWakeupGestureHandler = new GestureDetector(mView.getContext(),
                 mPulsingGestureListener);
         mQQSGestureHandler = new GestureDetector(mView.getContext(),

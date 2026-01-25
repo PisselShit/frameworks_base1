@@ -33,6 +33,7 @@ import com.android.systemui.bouncer.domain.interactor.AlternateBouncerInteractor
 import com.android.systemui.bouncer.domain.interactor.PrimaryBouncerInteractor
 import com.android.systemui.classifier.FalsingCollectorFake
 import com.android.systemui.display.dagger.SystemUIDisplaySubcomponent
+import com.android.systemui.island.IslandSceneBridge
 import com.android.systemui.dock.DockManager
 import com.android.systemui.dump.DumpManager
 import com.android.systemui.flags.FakeFeatureFlags
@@ -64,6 +65,7 @@ import com.android.systemui.statusbar.SysuiStatusBarStateController
 import com.android.systemui.statusbar.notification.data.repository.NotificationLaunchAnimationRepository
 import com.android.systemui.statusbar.notification.domain.interactor.NotificationLaunchAnimationInteractor
 import com.android.systemui.statusbar.notification.stack.AmbientState
+import com.android.systemui.statusbar.notification.headsup.HeadsUpManager
 import com.android.systemui.statusbar.notification.stack.NotificationStackScrollLayout
 import com.android.systemui.statusbar.notification.stack.NotificationStackScrollLayoutController
 import com.android.systemui.statusbar.phone.CentralSurfaces
@@ -243,6 +245,8 @@ class NotificationShadeWindowViewTest : SysuiTestCase() {
                 kosmos.dozeTouchInteractor,
                 kosmos.javaAdapter,
                 qqsGestureListener,
+                mock(IslandSceneBridge::class.java),
+                mock(HeadsUpManager::class.java),
             )
 
         controller.setupExpandedStatusBar()

@@ -16,18 +16,46 @@
 
 package com.android.systemui.shade
 
+import com.android.systemui.dagger.qualifiers.Application
+import com.android.systemui.dagger.qualifiers.Main
+import com.android.systemui.island.IslandSceneBridge
+import com.android.systemui.shade.domain.interactor.BaseShadeInteractor
 import com.android.systemui.statusbar.GestureRecorder
 import com.android.systemui.statusbar.notification.headsup.HeadsUpManager
 import com.android.systemui.statusbar.phone.CentralSurfaces
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class ShadeSurfaceImpl @Inject constructor() : ShadeSurface, ShadeViewControllerEmptyImpl() {
+class ShadeSurfaceImpl @Inject constructor(
+    private val islandBridge: IslandSceneBridge,
+    private val baseShadeInteractor: BaseShadeInteractor,
+    @Application private val scope: CoroutineScope,
+    @Main private val mainDispatcher: CoroutineDispatcher,
+) : ShadeSurface, ShadeViewControllerEmptyImpl() {
+
+    init {
+        scope.launch(mainDispatcher) {
+            baseShadeInteractor.shadeExpansion.collect { fraction ->
+                islandBridge.updateIslandVisibility(fraction)
+            }
+        }
+    }
+
     override fun initDependencies(
         centralSurfaces: CentralSurfaces,
         recorder: GestureRecorder,
         hideExpandedRunnable: Runnable,
         headsUpManager: HeadsUpManager,
     ) {}
+
+    override fun showIsland(show: Boolean) {
+        if (!islandBridge.isWired()) return
+        val fraction = baseShadeInteractor.shadeExpansion.value
+        islandBridge.showIsland(show, fraction)
+    }
 
     override fun cancelPendingCollapse() {
         // Do nothing
