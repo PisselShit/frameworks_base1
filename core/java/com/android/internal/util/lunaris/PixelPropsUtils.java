@@ -19,6 +19,7 @@ package com.android.internal.util.lunaris;
 
 import android.app.ActivityThread;
 import android.app.Application;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Build;
@@ -61,28 +62,8 @@ public final class PixelPropsUtils {
     private static final Map<String, Object> propsToChangePixel10ProXL = new HashMap<>();
     private static final Map<String, Object> propsToChangePixelTablet = new HashMap<>();
     private static final Map<String, Object> propsToChangePixelXL = new HashMap<>();
-    private static final Map<String, Object> propsToChangeROG6 = new HashMap<>();
-    private static final Map<String, Object> propsToChangeROG6D = new HashMap<>();
-    private static final Map<String, Object> propsToChangeLenovoY700 = new HashMap<>();
-    private static final Map<String, Object> propsToChangeOP8P = new HashMap<>();
-    private static final Map<String, Object> propsToChangeOP9P = new HashMap<>();
-    private static final Map<String, Object> propsToChangeMI11TP = new HashMap<>();
-    private static final Map<String, Object> propsToChangeMI13P = new HashMap<>();
-    private static final Map<String, Object> propsToChangeF5 = new HashMap<>();
-    private static final Map<String, Object> propsToChangeBS4 = new HashMap<>();
-    private static final Map<String, Object> propsToChangeS24U = new HashMap<>();
 
     private static final ArraySet<String> PKGS_RECENT_PIXEL = new ArraySet<>(); // Pixel device
-    private static final ArraySet<String> PKGS_ROG6 = new ArraySet<>(); // ROG Phone 6
-    private static final ArraySet<String> PKGS_ROG6D = new ArraySet<>(); // ROG Phone 6D
-    private static final ArraySet<String> PKGS_LENOVOY700 = new ArraySet<>(); // Lenovo Y700
-    private static final ArraySet<String> PKGS_OP8P = new ArraySet<>(); // OnePlus 8 Pro
-    private static final ArraySet<String> PKGS_OP9P = new ArraySet<>(); //  OnePlus 9 Pro
-    private static final ArraySet<String> PKGS_MI11TP = new ArraySet<>(); // Mi 11T Pro
-    private static final ArraySet<String> PKGS_MI13P = new ArraySet<>(); // Xiaomi 13 Pro
-    private static final ArraySet<String> PKGS_F5 = new ArraySet<>(); // POCO F5
-    private static final ArraySet<String> PKGS_BS4 = new ArraySet<>(); // Black Shark 4
-    private static final ArraySet<String> PKGS_S24U = new ArraySet<>(); // Samsung S24 Ultra
 
     static {
         Collections.addAll(PKGS_RECENT_PIXEL,
@@ -113,73 +94,6 @@ public final class PixelPropsUtils {
             "com.nhs.online.nhsonline"
         );
 
-        Collections.addAll(PKGS_ROG6,
-            "com.ea.gp.fifamobile",
-            "com.gameloft.android.ANMP.GloftA9HM",
-            "com.madfingergames.legends",
-            "com.pearlabyss.blackdesertm",
-            "com.pearlabyss.blackdesertm.gl"
-        );
-
-        Collections.addAll(PKGS_ROG6D,
-            "com.proxima.dfm"
-        );
-
-        Collections.addAll(PKGS_LENOVOY700,
-            "com.activision.callofduty.shooter",
-            "com.garena.game.codm",
-            "com.tencent.tmgp.kr.codm",
-            "com.vng.codmvn"
-        );
-
-        Collections.addAll(PKGS_OP8P,
-            "com.netease.lztgglobal",
-            "com.riotgames.league.wildrift",
-            "com.riotgames.league.wildrifttw",
-            "com.riotgames.league.wildriftvn",
-            "com.riotgames.league.teamfighttactics",
-            "com.riotgames.league.teamfighttacticstw",
-            "com.riotgames.league.teamfighttacticsvn"
-        );
-
-        Collections.addAll(PKGS_OP9P,
-            "com.epicgames.fortnite",
-            "com.epicgames.portal",
-            "com.tencent.lolm"
-        );
-
-        Collections.addAll(PKGS_MI11TP,
-            "com.ea.gp.apexlegendsmobilefps",
-            "com.levelinfinite.hotta.gp",
-            "com.supercell.clashofclans",
-            "com.vng.mlbbvn"
-        );
-
-        Collections.addAll(PKGS_MI13P,
-            "com.levelinfinite.sgameGlobal",
-            "com.tencent.tmgp.sgame"
-        );
-
-        Collections.addAll(PKGS_F5,
-            "com.dts.freefiremax",
-            "com.dts.freefireth",
-            "com.mobile.legends"
-        );
-
-        Collections.addAll(PKGS_BS4,
-            "com.proximabeta.mf.uamo"
-        );
-
-        Collections.addAll(PKGS_S24U,
-            "com.blizzard.diablo.immortal",
-            "com.pubg.imobile",
-            "com.pubg.krmobile",
-            "com.rekoo.pubgm",
-            "com.tencent.ig",
-            "com.tencent.tmgp.pubgmhd",
-            "com.vng.pubgmobile"
-        );
-
         propsToChangeGeneric.put("TYPE", "user");
         propsToChangeGeneric.put("TAGS", "release-keys");
         propsToChangePixel10ProXL.put("BRAND", "google");
@@ -206,32 +120,6 @@ public final class PixelPropsUtils {
         propsToChangePixelXL.put("MODEL", "Pixel XL");
         propsToChangePixelXL.put("ID", "QP1A.191005.007.A3");
         propsToChangePixelXL.put("FINGERPRINT", "google/marlin/marlin:10/QP1A.191005.007.A3/5972272:user/release-keys");
-        propsToChangeROG6.put("BRAND", "asus");
-        propsToChangeROG6.put("MANUFACTURER", "asus");
-        propsToChangeROG6.put("DEVICE", "AI2201");
-        propsToChangeROG6.put("MODEL", "ASUS_AI2201");
-        propsToChangeROG6D.put("BRAND", "asus");
-        propsToChangeROG6D.put("MANUFACTURER", "asus");
-        propsToChangeROG6D.put("DEVICE", "AI2203_C");
-        propsToChangeROG6D.put("MODEL", "ASUS_AI2203_C");
-        propsToChangeLenovoY700.put("MODEL", "Lenovo TB-9707F");
-        propsToChangeLenovoY700.put("MANUFACTURER", "lenovo");
-        propsToChangeOP8P.put("MODEL", "IN2020");
-        propsToChangeOP8P.put("MANUFACTURER", "OnePlus");
-        propsToChangeOP9P.put("MODEL", "LE2123");
-        propsToChangeOP9P.put("MANUFACTURER", "OnePlus");
-        propsToChangeMI11TP.put("MODEL", "2107113SI");
-        propsToChangeMI11TP.put("MANUFACTURER", "Xiaomi");
-        propsToChangeMI13P.put("BRAND", "Xiaomi");
-        propsToChangeMI13P.put("MANUFACTURER", "Xiaomi");
-        propsToChangeMI13P.put("MODEL", "2210132C");
-        propsToChangeF5.put("MODEL", "23049PCD8G");
-        propsToChangeF5.put("MANUFACTURER", "Xiaomi");
-        propsToChangeBS4.put("MODEL", "2SM-X706B");
-        propsToChangeBS4.put("MANUFACTURER", "blackshark");
-        propsToChangeS24U.put("BRAND", "samsung");
-        propsToChangeS24U.put("MANUFACTURER", "samsung");
-        propsToChangeS24U.put("MODEL", "SM-S928B");
     }
 
     private static volatile List<String> sCertifiedProps;
@@ -287,53 +175,10 @@ public final class PixelPropsUtils {
                 if (DEBUG) Log.d(TAG, "Defining props for: " + packageName);
                 applyProps(propsToChange);
             }
-        } else if (isGamePackage(packageName)) {
-            if (Settings.Secure.getInt(context.getContentResolver(),
-                    Settings.Secure.PI_GAMES_SPOOF, 0) != 1)
-                return;
-
-            Map<String,Object> propsToChange = null;
-
-            if (PKGS_ROG6.contains(packageName)) {
-                propsToChange = propsToChangeROG6;
-            } else if (PKGS_ROG6D.contains(packageName)) {
-                propsToChange = propsToChangeROG6D;
-            } else if (PKGS_LENOVOY700.contains(packageName)) {
-                propsToChange = propsToChangeLenovoY700;
-            } else if (PKGS_OP8P.contains(packageName)) {
-                propsToChange = propsToChangeOP8P;
-            } else if (PKGS_OP9P.contains(packageName)) {
-                propsToChange = propsToChangeOP9P;
-            } else if (PKGS_MI11TP.contains(packageName)) {
-                propsToChange = propsToChangeMI11TP;
-            } else if (PKGS_MI13P.contains(packageName)) {
-                propsToChange = propsToChangeMI13P;
-            } else if (PKGS_F5.contains(packageName)) {
-                propsToChange = propsToChangeF5;
-            } else if (PKGS_BS4.contains(packageName)) {
-                propsToChange = propsToChangeBS4;
-            } else if (PKGS_S24U.contains(packageName)) {
-                propsToChange = propsToChangeS24U;
-            }
-
-            if (propsToChange != null) {
-                if (DEBUG) Log.d(TAG, "Defining props for: " + packageName);
-                applyProps(propsToChange);
-            }
         }
-    }
 
-    private static boolean isGamePackage(String pkg) {
-        return PKGS_ROG6.contains(pkg)
-            || PKGS_ROG6D.contains(pkg)
-            || PKGS_LENOVOY700.contains(pkg)
-            || PKGS_OP8P.contains(pkg)
-            || PKGS_OP9P.contains(pkg)
-            || PKGS_MI11TP.contains(pkg)
-            || PKGS_MI13P.contains(pkg)
-            || PKGS_F5.contains(pkg)
-            || PKGS_BS4.contains(pkg)
-            || PKGS_S24U.contains(pkg);
+        // Apply game props if enabled
+        setGameProps(context, packageName);
     }
 
     private static void applyProps(Map<String,Object> props) {
@@ -376,6 +221,47 @@ public final class PixelPropsUtils {
             field.setAccessible(false);
         } catch (Exception e) {
             Log.e(TAG, "Failed to set prop " + key, e);
+        }
+    }
+
+    private static Map<String, String> getGameProps(String packageName) {
+        Map<String, String> gamePropsToChange = new HashMap<>();
+        String[] keys = {"BRAND", "DEVICE", "MANUFACTURER", "MODEL", "FINGERPRINT", "PRODUCT"};
+        for (String key : keys) {
+            String systemPropertyKey = "persist.sys.gameprops." + packageName + "." + key;
+            String value = SystemProperties.get(systemPropertyKey);
+            if (value != null && !value.isEmpty()) {
+                gamePropsToChange.put(key, value);
+                if (DEBUG) Log.d(TAG, "Got system property: " + systemPropertyKey + " = " + value);
+            }
+        }
+        return gamePropsToChange;
+    }
+
+    public static void setGameProps(Context context, String packageName) {
+        if (packageName == null || packageName.isEmpty()) {
+            return;
+        }
+        
+        try {
+            if (Settings.Secure.getInt(context.getContentResolver(),
+                    Settings.Secure.PI_GAMES_SPOOF, 0) != 1) {
+                return;
+            }
+        } catch (Exception e) {
+            if (DEBUG) Log.d(TAG, "Skipping game props - Settings not available yet");
+            return;
+        }
+        
+        Map<String, String> gamePropsToChange = getGameProps(packageName);
+        if (!gamePropsToChange.isEmpty()) {
+            if (DEBUG) Log.d(TAG, "Defining game props for: " + packageName);
+            for (Map.Entry<String, String> prop : gamePropsToChange.entrySet()) {
+                String key = prop.getKey();
+                String value = prop.getValue();
+                if (DEBUG) Log.d(TAG, "Defining game prop " + key + " for: " + packageName);
+                setPropValue(key, value);
+            }
         }
     }
 
