@@ -102,8 +102,8 @@ public final class PixelPropsUtils {
         propsToChangePixel10ProXL.put("PRODUCT", "mustang");
         propsToChangePixel10ProXL.put("HARDWARE", "mustang");
         propsToChangePixel10ProXL.put("MODEL", "Pixel 10 Pro XL");
-        propsToChangePixel10ProXL.put("ID", "BP4A.260105.004.E1");
-        propsToChangePixel10ProXL.put("FINGERPRINT", "google/mustang/mustang:16/BP4A.260105.004.E1/14587043:user/release-keys");
+        propsToChangePixel10ProXL.put("ID", "BP4A.260205.001");
+        propsToChangePixel10ProXL.put("FINGERPRINT", "google/mustang/mustang:16/BP4A.260205.001/14624707:user/release-keys");
         propsToChangePixelTablet.put("BRAND", "google");
         propsToChangePixelTablet.put("MANUFACTURER", "Google");
         propsToChangePixelTablet.put("DEVICE", "tangorpro");
