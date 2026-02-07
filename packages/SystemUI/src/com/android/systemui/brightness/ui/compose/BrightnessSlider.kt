@@ -80,9 +80,11 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
@@ -577,6 +579,7 @@ fun BrightnessSliderContainer(
     viewModel: BrightnessSliderViewModel,
     modifier: Modifier = Modifier,
     containerColors: ContainerColors,
+    squishiness: Float = 1f,
 ) {
     val gamma = viewModel.currentBrightness.value
     if (gamma == BrightnessSliderViewModel.initialValue.value) { // Ignore initial negative value.
@@ -617,12 +620,28 @@ fun BrightnessSliderContainer(
             if (dragging) containerColors.mirrorColor else containerColors.idleColor
         )
 
+    val showStart = 0.89f
+    val expanding = squishiness < showStart
+    val brightnessAlpha = when {
+        expanding -> 0f
+        else -> {
+            ((squishiness - showStart) / (1f - showStart))
+                .coerceIn(0f, 1f)
+        }
+    }
+
     Box(
         modifier =
             modifier
                 .padding(vertical = { SliderBackgroundFrameSize.height.roundToPx() })
                 .fillMaxWidth()
                 .sysuiResTag("brightness_slider")
+                .graphicsLayer {
+                    scaleX = squishiness
+                    scaleY = squishiness
+                    transformOrigin = TransformOrigin(0.5f, 0.5f)
+                    alpha = brightnessAlpha
+                }
     ) {
         BrightnessSlider(
             gammaValue = gamma,

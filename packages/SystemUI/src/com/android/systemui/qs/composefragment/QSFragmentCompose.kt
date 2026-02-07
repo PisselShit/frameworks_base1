@@ -748,7 +748,7 @@ constructor(
             ) {
                 val BrightnessSlider: @Composable () -> Unit = {
                     Element(Elements.BrightnessSlider, modifier = modifier) {
-                        BrightnessSlider(viewModel, layoutState)
+                        BrightnessSlider(viewModel, layoutState, squishiness)
                     }
                 }
                 val Tiles =
@@ -875,7 +875,7 @@ constructor(
                         )
                         val BrightnessSlider: @Composable () -> Unit = {
                             Element(Elements.BrightnessSlider, modifier = modifier) {
-                                BrightnessSlider(viewModel, layoutState)
+                                BrightnessSlider(viewModel, layoutState, squishiness = 1f)
                             }
                         }
                         val TileGrid =
@@ -963,6 +963,7 @@ constructor(
     private fun BrightnessSlider(
         viewModel: QSFragmentComposeViewModel,
         layoutState: SceneTransitionLayoutState,
+        squishiness: Float = 1f,
     ) {
         Box(
             Modifier.systemGestureExclusionInShade(
@@ -990,6 +991,7 @@ constructor(
                             ContainerColors.defaultContainerColor,
                         ),
                     modifier = Modifier.fillMaxWidth(),
+                    squishiness = squishiness,
                 )
             }
         }
