@@ -70,6 +70,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -425,9 +426,12 @@ private fun TileExpandable(
     modifier: Modifier = Modifier,
     content: @Composable (Expandable) -> Unit,
 ) {
+    val s = squishiness()
     Expandable(
         controller = rememberExpandableController(color = color, shape = shape),
-        modifier = modifier.clip(shape).verticalSquish(squishiness),
+        modifier = modifier
+            .clip(shape)
+            .squishy(s),
         useModifierBasedImplementation = true,
     ) {
         content(hapticsViewModel?.createStateAwareExpandable(it) ?: it)
@@ -792,6 +796,23 @@ private object TileDefaults {
                     }
                 }
             mutableStateOf(RoundedCornerShape(corner))
+        }
+    }
+}
+
+private fun Modifier.squishy(squishiness: Float): Modifier {
+    val showStart = 0.89f
+    val expanding = squishiness < showStart
+    
+    return graphicsLayer {
+        scaleX = squishiness
+        scaleY = squishiness
+        alpha = when {
+            expanding -> 0f
+            else -> {
+                ((squishiness - showStart) / (1f - showStart))
+                    .coerceIn(0f, 1f)
+            }
         }
     }
 }
