@@ -57,6 +57,8 @@ public final class PixelPropsUtils {
     private static final String TAG = PixelPropsUtils.class.getSimpleName();
     private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
     private static final String DATA_FILE = "gms_certified_props.json";
+    
+    private static final String PACKAGE_VENDING = "com.android.vending";
 
     private static final Map<String, Object> propsToChangeGeneric = new HashMap<>();
     private static final Map<String, Object> propsToChangePixel10ProXL = new HashMap<>();
@@ -138,6 +140,17 @@ public final class PixelPropsUtils {
         }
 
         propsToChangeGeneric.forEach((k, v) -> setPropValue(k, v));
+
+        if (packageName.equals(PACKAGE_VENDING)) {
+            if (Settings.Secure.getInt(context.getContentResolver(),
+                    Settings.Secure.PI_ENABLE_SPOOF, 1) == 1) {
+                if (DEBUG) Log.d(TAG, "Spoofing Play Store with certified props");
+                spoofBuildGms(context);
+            } else {
+                if (DEBUG) Log.d(TAG, "Play Store spoofing disabled by setting");
+            }
+            return;
+        }
 
         if (PKGS_RECENT_PIXEL.contains(packageName)) {
             Map<String,Object> propsToChange = null;
