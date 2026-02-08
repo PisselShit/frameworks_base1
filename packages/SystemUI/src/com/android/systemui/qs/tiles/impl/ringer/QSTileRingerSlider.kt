@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.android.systemui.common.ringer.RingerSliderWidget
@@ -35,7 +36,8 @@ import com.android.systemui.qs.panels.ui.compose.infinitegrid.rememberTileShapeM
 
 @Composable
 fun QSTileRingerSlider(
-    border: Modifier = Modifier
+    border: Modifier = Modifier,
+    squishiness: () -> Float = { 1f }
 ) {
     val context = LocalContext.current
 
@@ -64,11 +66,27 @@ fun QSTileRingerSlider(
     val animatedContainerRadius by animateDpAsState(targetValue = containerCornerRadius, label = "RingerContainerRadius")
     val animatedThumbRadius by animateDpAsState(targetValue = thumbCornerRadius, label = "RingerThumbRadius")
     
+    val s = squishiness()
+    val showStart = 0.89f
+    val expanding = s < showStart
+    
     RingerSliderWidget(
         interactor = interactor,
         theme = QSTileRingerTheme(),
         dimens = QSTileRingerDimens(TileHeight),
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .graphicsLayer {
+                scaleX = s
+                scaleY = s
+                alpha = when {
+                    expanding -> 0f
+                    else -> {
+                        ((s - showStart) / (1f - showStart))
+                            .coerceIn(0f, 1f)
+                    }
+                }
+            },
         isDozing = false,
         border = border,
         containerShape = RoundedCornerShape(animatedContainerRadius),
