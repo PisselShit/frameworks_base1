@@ -1306,7 +1306,7 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces,
                             boolean isFeatureEnabled = Settings.System.getIntForUser(
                                 mContext.getContentResolver(),
                                 "ongoing_action_chip", 
-                                1, 
+                                0, 
                                 UserHandle.USER_CURRENT) == 1;
                             
                             if (isFeatureEnabled) {

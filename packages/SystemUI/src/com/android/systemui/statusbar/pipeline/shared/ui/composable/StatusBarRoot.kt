@@ -512,7 +512,7 @@ private fun addStartSideComposable(
                     android.provider.Settings.System.getInt(
                         context.contentResolver,
                         "ongoing_action_chip",
-                        1
+                        0
                     ) == 1
                 }
 
