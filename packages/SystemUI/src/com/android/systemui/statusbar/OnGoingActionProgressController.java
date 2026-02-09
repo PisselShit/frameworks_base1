@@ -1440,7 +1440,7 @@ public class OnGoingActionProgressController implements NotificationListener.Not
         boolean wasCompactMode = mIsCompactModeEnabled;
         
         mIsEnabled = Settings.System.getIntForUser(mContentResolver, 
-                ONGOING_ACTION_CHIP_ENABLED, 1, UserHandle.USER_CURRENT) == 1;
+                ONGOING_ACTION_CHIP_ENABLED, 0, UserHandle.USER_CURRENT) == 1;
         mShowMediaProgress = Settings.System.getIntForUser(mContentResolver, 
                 SHOW_MEDIA_PROGRESS, 0, UserHandle.USER_CURRENT) == 1;
         mIsCompactModeEnabled = Settings.System.getIntForUser(mContentResolver, 
