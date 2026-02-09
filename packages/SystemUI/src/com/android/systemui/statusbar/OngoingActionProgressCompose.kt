@@ -318,7 +318,7 @@ class OnGoingActionProgressComposeController(
     init {
         Log.d(TAG, "Initializing OnGoingActionProgressComposeController")
 
-        val dummyGroup = OnGoingActionProgressGroup(null, null, null, null, null, null)
+        val dummyGroup = OnGoingActionProgressGroup.createForComposeMode()
 
         try {
             javaController = OnGoingActionProgressController(

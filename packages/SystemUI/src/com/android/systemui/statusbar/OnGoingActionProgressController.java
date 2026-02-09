@@ -1445,6 +1445,16 @@ public class OnGoingActionProgressController implements NotificationListener.Not
                 SHOW_MEDIA_PROGRESS, 0, UserHandle.USER_CURRENT) == 1;
         mIsCompactModeEnabled = Settings.System.getIntForUser(mContentResolver, 
                 COMPACT_MODE_ENABLED, 0, UserHandle.USER_CURRENT) == 1;
+
+        if (wasEnabled && !mIsEnabled) {
+            clearProgressTracking();
+            if (!mIsComposeMode) {
+                animateExit(mProgressRootView);
+                animateExit(mCompactRootView);
+            }
+            mMediaProgressHandler.removeCallbacks(mMediaProgressRunnable);
+            mHandler.removeCallbacks(mStaleProgressChecker);
+        }
         
         int opacityPercentage = Settings.System.getIntForUser(mContentResolver, 
                 PROGRESS_BAR_OPACITY, DEFAULT_OPACITY_PERCENTAGE, UserHandle.USER_CURRENT);
