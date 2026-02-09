@@ -67,7 +67,7 @@ fun QSTileRingerSlider(
     val animatedThumbRadius by animateDpAsState(targetValue = thumbCornerRadius, label = "RingerThumbRadius")
     
     val s = squishiness()
-    val showStart = 0.89f
+    val showStart = 0.83f
     val expanding = s < showStart
     
     RingerSliderWidget(

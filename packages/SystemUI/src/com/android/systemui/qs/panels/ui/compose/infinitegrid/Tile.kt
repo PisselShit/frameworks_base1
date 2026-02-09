@@ -801,16 +801,17 @@ private object TileDefaults {
 }
 
 private fun Modifier.squishy(squishiness: Float): Modifier {
-    val showStart = 0.89f
-    val expanding = squishiness < showStart
+    val fadeStartThreshold = 0.83f
+    val fullyVisibleThreshold = 0.95f
     
     return graphicsLayer {
         scaleX = squishiness
         scaleY = squishiness
         alpha = when {
-            expanding -> 0f
+            squishiness < fadeStartThreshold -> 0f
+            squishiness >= fullyVisibleThreshold -> 1f
             else -> {
-                ((squishiness - showStart) / (1f - showStart))
+                ((squishiness - fadeStartThreshold) / (fullyVisibleThreshold - fadeStartThreshold))
                     .coerceIn(0f, 1f)
             }
         }

@@ -620,7 +620,7 @@ fun BrightnessSliderContainer(
             if (dragging) containerColors.mirrorColor else containerColors.idleColor
         )
 
-    val showStart = 0.89f
+    val showStart = 0.83f
     val expanding = squishiness < showStart
     val brightnessAlpha = when {
         expanding -> 0f

@@ -1432,7 +1432,7 @@ private fun ContentScope.MediaObject(
     squishiness: Float = 1f,
     update: UniqueObjectHostView.() -> Unit = {},
 ) {
-    val showStart = 0.89f
+    val showStart = 0.83f
     val expanding = squishiness < showStart
     val mediaAlpha = when {
         isKeyguardState -> 1f
