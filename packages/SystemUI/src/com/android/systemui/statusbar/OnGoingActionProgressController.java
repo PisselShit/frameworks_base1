@@ -1,4 +1,6 @@
 /**
+ * Copyright (c) 2025, The LineageOS Project
+ * Copyright (c) 2024-2026 Lunaris AOSP
  * Copyright (c) 2025-2026 VoltageOS
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
