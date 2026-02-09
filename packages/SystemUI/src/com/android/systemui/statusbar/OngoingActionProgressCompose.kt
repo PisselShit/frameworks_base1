@@ -36,6 +36,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -58,6 +59,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.core.graphics.drawable.toBitmap
@@ -71,6 +73,7 @@ private const val TAG = "OngoingActionProgressCompose"
 /**
  * Composable that displays an ongoing action progress indicator in the status bar.
  * Shows app icon and progress bar for notifications with progress information.
+ * Supports configurable size and position.
  */
 @Composable
 fun OngoingActionProgress(
@@ -117,9 +120,16 @@ fun OngoingActionProgress(
             }
 
             if (state.isCompactMode) {
+                // Compact/Circular mode with configurable size and position
                 Box(
                     modifier = Modifier
-                        .size(26.dp)
+                        .size(state.circularSize.dp)
+                        .offset {
+                            IntOffset(
+                                state.circularPositionX.dp.roundToPx(),
+                                state.circularPositionY.dp.roundToPx()
+                            )
+                        }
                         .alpha(state.opacity)
                         .then(gestureModifier),
                     contentAlignment = Alignment.Center,
@@ -153,32 +163,41 @@ fun OngoingActionProgress(
                     }
 
                     state.icon?.let { iconBitmap ->
+                        val iconSize = (state.circularSize * 0.54f).dp // Scale icon with circular size
                         Image(
                             bitmap = iconBitmap,
                             contentDescription = "App icon",
-                            modifier = Modifier.size(14.dp)
-                                .clip(RoundedCornerShape(14.dp)),
+                            modifier = Modifier.size(iconSize)
+                                .clip(RoundedCornerShape(iconSize)),
                             colorFilter = null,
                         )
                     }
                 }
             } else {
+                // Normal horizontal mode with configurable width, height, and position
                 Row(
                     modifier = Modifier
-                        .width(86.dp)
-                        .height(26.dp)
+                        .width(state.chipWidth.dp)
+                        .height(state.chipHeight.dp)
+                        .offset {
+                            IntOffset(
+                                state.chipPositionX.dp.roundToPx(),
+                                state.chipPositionY.dp.roundToPx()
+                            )
+                        }
                         .padding(horizontal = 6.dp, vertical = 4.dp)
                         .alpha(state.opacity)
                         .then(gestureModifier),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     state.icon?.let { iconBitmap ->
+                        val iconSize = (state.chipHeight * 0.62f).dp // Scale icon with chip height
                         Image(
                             bitmap = iconBitmap,
                             contentDescription = "App icon",
                             modifier = Modifier
-                                .size(16.dp)
-                                .clip(RoundedCornerShape(16.dp))
+                                .size(iconSize)
+                                .clip(RoundedCornerShape(iconSize))
                                 .padding(start = 1.dp),
                             colorFilter = null,
                         )
@@ -189,7 +208,7 @@ fun OngoingActionProgress(
                     Box(
                         modifier = Modifier
                             .weight(1f)
-                            .height(6.dp)
+                            .height((state.chipHeight * 0.23f).dp) // Scale progress bar height
                             .padding(end = 3.dp)
                             .clip(RoundedCornerShape(3.dp))
                             .background(Color(0x33FFFFFF)),
@@ -259,7 +278,7 @@ fun OngoingActionProgress(
 }
 
 /**
- * State data for the progress indicator
+ * State data for the progress indicator with configurable size and position
  */
 data class ProgressState(
     val isVisible: Boolean = false,
@@ -271,6 +290,14 @@ data class ProgressState(
     val isCompactMode: Boolean = false,
     val opacity: Float = 1f,
     val showMediaControls: Boolean = false,
+    // Size and position parameters
+    val chipWidth: Int = 86,
+    val chipHeight: Int = 26,
+    val chipPositionX: Int = 0,
+    val chipPositionY: Int = 0,
+    val circularSize: Int = 26,
+    val circularPositionX: Int = 0,
+    val circularPositionY: Int = 0,
 )
 
 /**
@@ -302,13 +329,17 @@ class OnGoingActionProgressComposeController(
                 headsUpManager,
             )
 
-            javaController.setStateCallback { isVisible, progress, maxProgress, icon, isAdaptive, packageName, isCompact, opacity, showMenu ->
-                Log.d(TAG, "State callback: isVisible=$isVisible, compact=$isCompact, showMenu=$showMenu")
+            javaController.setStateCallback { 
+                isVisible, progress, maxProgress, icon, isAdaptive, packageName, isCompact, opacity, showMenu,
+                chipWidth, chipHeight, chipPositionX, chipPositionY, circularSize, circularPositionX, circularPositionY ->
+                
+                Log.d(TAG, "State callback: isVisible=$isVisible, compact=$isCompact, showMenu=$showMenu, " +
+                    "chipSize=${chipWidth}x${chipHeight}, circularSize=$circularSize")
 
                 val iconSizePx = if (isCompact) {
-                    (14 * context.resources.displayMetrics.density).toInt() * 2
+                    (circularSize * 0.54f * context.resources.displayMetrics.density).toInt() * 2
                 } else {
-                    (16 * context.resources.displayMetrics.density).toInt() * 2
+                    (chipHeight * 0.62f * context.resources.displayMetrics.density).toInt() * 2
                 }
 
                 val iconBitmap = try {
@@ -334,6 +365,13 @@ class OnGoingActionProgressComposeController(
                     isCompactMode = isCompact,
                     opacity = opacity,
                     showMediaControls = showMenu,
+                    chipWidth = chipWidth,
+                    chipHeight = chipHeight,
+                    chipPositionX = chipPositionX,
+                    chipPositionY = chipPositionY,
+                    circularSize = circularSize,
+                    circularPositionX = circularPositionX,
+                    circularPositionY = circularPositionY,
                 )
             }
 
