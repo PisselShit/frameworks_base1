@@ -61,6 +61,15 @@ public class OnGoingActionProgressController
   private static final String SHOW_MEDIA_PROGRESS = "show_media_progress";
   private static final String PROGRESS_BAR_OPACITY = "progress_bar_opacity";
   private static final String COMPACT_MODE_ENABLED = "compact_progress_mode";
+  
+  private static final String CHIP_POSITION_X = "chip_position_x";
+  private static final String CHIP_POSITION_Y = "chip_position_y";
+  private static final String CHIP_WIDTH = "chip_width";
+  private static final String CHIP_HEIGHT = "chip_height";
+  private static final String CIRCULAR_CHIP_SIZE = "circular_chip_size";
+  private static final String CIRCULAR_POSITION_X = "circular_position_x";
+  private static final String CIRCULAR_POSITION_Y = "circular_position_y";
+  
   private static final int SWIPE_THRESHOLD = 100;
   private static final int SWIPE_VELOCITY_THRESHOLD = 100;
   private static final int DEFAULT_OPACITY = 255;
@@ -69,6 +78,19 @@ public class OnGoingActionProgressController
   private static final int DEBOUNCE_DELAY_MS = 150;
   private static final int STALE_PROGRESS_CHECK_INTERVAL_MS = 5000;
   private static final int PROGRESS_TIMEOUT_MS = 30000;
+  
+  private static final int DEFAULT_CHIP_WIDTH = 86;
+  private static final int DEFAULT_CHIP_HEIGHT = 26;
+  private static final int DEFAULT_CIRCULAR_SIZE = 26;
+  private static final int DEFAULT_POSITION_X = 0;
+  private static final int DEFAULT_POSITION_Y = 0;
+  
+  private static final int MIN_CHIP_WIDTH = 60;
+  private static final int MAX_CHIP_WIDTH = 200;
+  private static final int MIN_CHIP_HEIGHT = 20;
+  private static final int MAX_CHIP_HEIGHT = 50;
+  private static final int MIN_CIRCULAR_SIZE = 20;
+  private static final int MAX_CIRCULAR_SIZE = 60;
 
   public interface StateCallback {
     void onStateChanged(
@@ -80,7 +102,14 @@ public class OnGoingActionProgressController
         String packageName,
         boolean isCompactMode,
         float opacity,
-        boolean showMediaControls);
+        boolean showMediaControls,
+        int chipWidth,
+        int chipHeight,
+        int chipPositionX,
+        int chipPositionY,
+        int circularSize,
+        int circularPositionX,
+        int circularPositionY);
   }
 
   private final Context mContext;
@@ -119,6 +148,14 @@ public class OnGoingActionProgressController
   private int mProgressBarOpacity = DEFAULT_OPACITY;
   private boolean mIsMenuVisible = false;
   private boolean mIsSystemChipVisible = false;
+
+  private int mChipWidth = DEFAULT_CHIP_WIDTH;
+  private int mChipHeight = DEFAULT_CHIP_HEIGHT;
+  private int mChipPositionX = DEFAULT_POSITION_X;
+  private int mChipPositionY = DEFAULT_POSITION_Y;
+  private int mCircularChipSize = DEFAULT_CIRCULAR_SIZE;
+  private int mCircularPositionX = DEFAULT_POSITION_X;
+  private int mCircularPositionY = DEFAULT_POSITION_Y;
 
   private String mTrackedNotificationKey;
   private String mTrackedPackageName;
@@ -368,9 +405,16 @@ public class OnGoingActionProgressController
           mTrackedPackageName,
           isCompact,
           opacity,
-          mIsMenuVisible);
+          mIsMenuVisible,
+          mChipWidth,
+          mChipHeight,
+          mChipPositionX,
+          mChipPositionY,
+          mCircularChipSize,
+          mCircularPositionX,
+          mCircularPositionY);
     } else {
-      mStateCallback.onStateChanged(false, 0, 0, null, false, null, false, 0f, false);
+      mStateCallback.onStateChanged(false, 0, 0, null, false, null, false, 0f, false, 0, 0, 0, 0, 0, 0, 0);
     }
   }
 
@@ -386,6 +430,9 @@ public class OnGoingActionProgressController
       float opacity = mProgressBarOpacity / 255f;
       mProgressRootView.setAlpha(opacity);
       mCompactRootView.setAlpha(opacity);
+      
+      // Apply size and position changes for non-Compose mode
+      applyLayoutParams();
     }
 
     if (mIsForceHidden || mHeadsUpPinned) {
@@ -442,6 +489,43 @@ public class OnGoingActionProgressController
       }
     }
     notifyStateCallback();
+  }
+
+  private void applyLayoutParams() {
+    if (mProgressRootView != null) {
+      ViewGroup.LayoutParams params = mProgressRootView.getLayoutParams();
+      if (params != null) {
+        float density = mContext.getResources().getDisplayMetrics().density;
+        params.width = (int) (mChipWidth * density);
+        params.height = (int) (mChipHeight * density);
+        
+        if (params instanceof ViewGroup.MarginLayoutParams) {
+          ViewGroup.MarginLayoutParams marginParams = (ViewGroup.MarginLayoutParams) params;
+          marginParams.setMarginStart((int) (mChipPositionX * density));
+          marginParams.topMargin = (int) (mChipPositionY * density);
+        }
+        
+        mProgressRootView.setLayoutParams(params);
+      }
+    }
+
+    if (mCompactRootView != null) {
+      ViewGroup.LayoutParams params = mCompactRootView.getLayoutParams();
+      if (params != null) {
+        float density = mContext.getResources().getDisplayMetrics().density;
+        int size = (int) (mCircularChipSize * density);
+        params.width = size;
+        params.height = size;
+        
+        if (params instanceof ViewGroup.MarginLayoutParams) {
+          ViewGroup.MarginLayoutParams marginParams = (ViewGroup.MarginLayoutParams) params;
+          marginParams.setMarginStart((int) (mCircularPositionX * density));
+          marginParams.topMargin = (int) (mCircularPositionY * density);
+        }
+        
+        mCompactRootView.setLayoutParams(params);
+      }
+    }
   }
 
   private void updateMediaProgressOnly() {
@@ -1076,7 +1160,14 @@ public class OnGoingActionProgressController
       if (uri.equals(Settings.System.getUriFor(ONGOING_ACTION_CHIP_ENABLED))
           || uri.equals(Settings.System.getUriFor(SHOW_MEDIA_PROGRESS))
           || uri.equals(Settings.System.getUriFor(PROGRESS_BAR_OPACITY))
-          || uri.equals(Settings.System.getUriFor(COMPACT_MODE_ENABLED))) {
+          || uri.equals(Settings.System.getUriFor(COMPACT_MODE_ENABLED))
+          || uri.equals(Settings.System.getUriFor(CHIP_POSITION_X))
+          || uri.equals(Settings.System.getUriFor(CHIP_POSITION_Y))
+          || uri.equals(Settings.System.getUriFor(CHIP_WIDTH))
+          || uri.equals(Settings.System.getUriFor(CHIP_HEIGHT))
+          || uri.equals(Settings.System.getUriFor(CIRCULAR_CHIP_SIZE))
+          || uri.equals(Settings.System.getUriFor(CIRCULAR_POSITION_X))
+          || uri.equals(Settings.System.getUriFor(CIRCULAR_POSITION_Y))) {
         updateSettings();
       }
     }
@@ -1090,6 +1181,20 @@ public class OnGoingActionProgressController
           Settings.System.getUriFor(PROGRESS_BAR_OPACITY), false, this, UserHandle.USER_ALL);
       mContentResolver.registerContentObserver(
           Settings.System.getUriFor(COMPACT_MODE_ENABLED), false, this, UserHandle.USER_ALL);
+      mContentResolver.registerContentObserver(
+          Settings.System.getUriFor(CHIP_POSITION_X), false, this, UserHandle.USER_ALL);
+      mContentResolver.registerContentObserver(
+          Settings.System.getUriFor(CHIP_POSITION_Y), false, this, UserHandle.USER_ALL);
+      mContentResolver.registerContentObserver(
+          Settings.System.getUriFor(CHIP_WIDTH), false, this, UserHandle.USER_ALL);
+      mContentResolver.registerContentObserver(
+          Settings.System.getUriFor(CHIP_HEIGHT), false, this, UserHandle.USER_ALL);
+      mContentResolver.registerContentObserver(
+          Settings.System.getUriFor(CIRCULAR_CHIP_SIZE), false, this, UserHandle.USER_ALL);
+      mContentResolver.registerContentObserver(
+          Settings.System.getUriFor(CIRCULAR_POSITION_X), false, this, UserHandle.USER_ALL);
+      mContentResolver.registerContentObserver(
+          Settings.System.getUriFor(CIRCULAR_POSITION_Y), false, this, UserHandle.USER_ALL);
       updateSettings();
     }
 
@@ -1124,8 +1229,31 @@ public class OnGoingActionProgressController
             UserHandle.USER_CURRENT);
 
     opacityPercentage = Math.max(0, Math.min(100, opacityPercentage));
-
     mProgressBarOpacity = (int) (opacityPercentage * 2.55f);
+
+    mChipWidth = Settings.System.getIntForUser(
+        mContentResolver, CHIP_WIDTH, DEFAULT_CHIP_WIDTH, UserHandle.USER_CURRENT);
+    mChipWidth = Math.max(MIN_CHIP_WIDTH, Math.min(MAX_CHIP_WIDTH, mChipWidth));
+    
+    mChipHeight = Settings.System.getIntForUser(
+        mContentResolver, CHIP_HEIGHT, DEFAULT_CHIP_HEIGHT, UserHandle.USER_CURRENT);
+    mChipHeight = Math.max(MIN_CHIP_HEIGHT, Math.min(MAX_CHIP_HEIGHT, mChipHeight));
+    
+    mChipPositionX = Settings.System.getIntForUser(
+        mContentResolver, CHIP_POSITION_X, DEFAULT_POSITION_X, UserHandle.USER_CURRENT);
+    
+    mChipPositionY = Settings.System.getIntForUser(
+        mContentResolver, CHIP_POSITION_Y, DEFAULT_POSITION_Y, UserHandle.USER_CURRENT);
+    
+    mCircularChipSize = Settings.System.getIntForUser(
+        mContentResolver, CIRCULAR_CHIP_SIZE, DEFAULT_CIRCULAR_SIZE, UserHandle.USER_CURRENT);
+    mCircularChipSize = Math.max(MIN_CIRCULAR_SIZE, Math.min(MAX_CIRCULAR_SIZE, mCircularChipSize));
+    
+    mCircularPositionX = Settings.System.getIntForUser(
+        mContentResolver, CIRCULAR_POSITION_X, DEFAULT_POSITION_X, UserHandle.USER_CURRENT);
+    
+    mCircularPositionY = Settings.System.getIntForUser(
+        mContentResolver, CIRCULAR_POSITION_Y, DEFAULT_POSITION_Y, UserHandle.USER_CURRENT);
 
     if (wasEnabled != mIsEnabled
         || wasShowingMedia != mShowMediaProgress
