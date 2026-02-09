@@ -1303,11 +1303,21 @@ public class CentralSurfacesImpl implements CoreStartable, CentralSurfaces,
                         checkBarModes();
                         mBurnInProtectionController.setPhoneStatusBarView(mPhoneStatusBarViewController.getPhoneStatusBarView());
                         if (!StatusBarRootModernization.isEnabled()) {
-                            mOnGoingActionProgressController =
-                                 new OnGoingActionProgressController(
-                                         mContext,
-                                     statusBarViewController.getOngoingActionProgressGroup(), mNotificationListener,
-                                     mKeyguardStateController, mHeadsUpManager);
+                            boolean isFeatureEnabled = Settings.System.getIntForUser(
+                                mContext.getContentResolver(),
+                                "ongoing_action_chip", 
+                                1, 
+                                UserHandle.USER_CURRENT) == 1;
+                            
+                            if (isFeatureEnabled) {
+                                mOnGoingActionProgressController =
+                                    new OnGoingActionProgressController(
+                                        mContext,
+                                        statusBarViewController.getOngoingActionProgressGroup(), 
+                                        mNotificationListener,
+                                        mKeyguardStateController, 
+                                        mHeadsUpManager);
+                            }
                         }
                     });
         }

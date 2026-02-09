@@ -42,4 +42,8 @@ public class OnGoingActionProgressGroup {
     this.compactIconView = compactIconView;
     this.circularProgressBarView = circularProgressBarView;
   }
+
+  public static OnGoingActionProgressGroup createForComposeMode() {
+    return new OnGoingActionProgressGroup(null, null, null, null, null, null);
+  }
 }

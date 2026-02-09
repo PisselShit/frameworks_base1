@@ -508,29 +508,44 @@ private fun addStartSideComposable(
                         )
                     }
 
-                val progressController = remember {
-                    com.android.systemui.statusbar.OnGoingActionProgressComposeController(
-                        context,
-                        notificationListener,
-                        keyguardStateController,
-                        headsUpManager
-                    )
+                val isOngoingActionEnabled = remember {
+                    android.provider.Settings.System.getInt(
+                        context.contentResolver,
+                        "ongoing_action_chip",
+                        1
+                    ) == 1
                 }
-                
-val chipsVisibilityModel = statusBarViewModel.ongoingActivityChips
-val hasSystemChips = chipsVisibilityModel.chips.active.isNotEmpty()
-progressController.setSystemChipVisible(hasSystemChips)
 
-                OngoingActionProgress(controller = progressController)
+                if (isOngoingActionEnabled) {
+                    val progressController = remember {
+                        com.android.systemui.statusbar.OnGoingActionProgressComposeController(
+                            context,
+                            notificationListener,
+                            keyguardStateController,
+                            headsUpManager
+                        )
+                    }
 
+                    DisposableEffect(progressController) {
+                        onDispose {
+                            android.util.Log.d("StatusBarRoot", "Disposing OnGoingActionProgressComposeController")
+                            progressController.destroy()
+                        }
+                    }
+                    
+                    val chipsVisibilityModel = statusBarViewModel.ongoingActivityChips
+                    val hasSystemChips = chipsVisibilityModel.chips.active.isNotEmpty()
+                    progressController.setSystemChipVisible(hasSystemChips)
+
+                    OngoingActionProgress(controller = progressController)
+                }
+
+                val chipsVisibilityModel = statusBarViewModel.ongoingActivityChips
                 if (chipsVisibilityModel.areChipsAllowed) {
                     OngoingActivityChips(
                         chips = chipsVisibilityModel.chips,
                         iconViewStore = iconViewStore,
                         onChipBoundsChanged = statusBarViewModel::onChipBoundsChanged,
-                        // TODO(b/393581408): Now that we always enforce a max width on the chips,
-                        //  we should be able to convert the chips to a LazyRow and get some
-                        //  animations for free.
                         modifier = Modifier.sysUiResTagContainer().widthIn(max = chipsMaxWidth),
                     )
                 }
