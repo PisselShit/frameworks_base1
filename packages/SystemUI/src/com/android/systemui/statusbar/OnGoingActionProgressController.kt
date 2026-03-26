@@ -79,6 +79,7 @@ class OnGoingActionProgressController(
     private var isCompactModeEnabled = false
     private var useWaveformSeekBar = false
     private var chipColorMode = CHIP_COLOR_MODE_DEFAULT
+    private var chipBgAlpha = 100
 
     private var currentProgress = 0
     private var currentProgressMax = 0
@@ -127,7 +128,8 @@ class OnGoingActionProgressController(
                     uri == Settings.System.getUriFor(ONGOING_MEDIA_PROGRESS) ||
                     uri == Settings.System.getUriFor(ONGOING_COMPACT_MODE_ENABLED) ||
                     uri == Settings.System.getUriFor(MEDIA_WAVEFORM_SEEKBAR) ||
-                    uri == Settings.System.getUriFor(ONGOING_CHIP_COLOR_MODE)) {
+                    uri == Settings.System.getUriFor(ONGOING_CHIP_COLOR_MODE) ||
+                    uri == Settings.System.getUriFor(ONGOING_CHIP_BG_ALPHA)) {
                     updateSettings()
                 }
             }
@@ -159,6 +161,12 @@ class OnGoingActionProgressController(
                 )
                 contentResolver.registerContentObserver(
                     Settings.System.getUriFor(ONGOING_CHIP_COLOR_MODE),
+                    false,
+                    this,
+                    UserHandle.USER_ALL
+                )
+                contentResolver.registerContentObserver(
+                    Settings.System.getUriFor(ONGOING_CHIP_BG_ALPHA),
                     false,
                     this,
                     UserHandle.USER_ALL
@@ -366,6 +374,7 @@ class OnGoingActionProgressController(
                     artistName = null,
                     useWaveformSeekBar = useWaveformSeekBar,
                     chipBgColor = null,
+                    chipBgAlpha = chipBgAlpha,
                 )
             )
             return
@@ -401,6 +410,7 @@ class OnGoingActionProgressController(
                 artistName = artistName,
                 useWaveformSeekBar = useWaveformSeekBar,
                 chipBgColor = currentChipBgColor,
+                chipBgAlpha = chipBgAlpha,
             )
         )
     }
@@ -858,8 +868,15 @@ class OnGoingActionProgressController(
             UserHandle.USER_CURRENT
         )
 
-        if (!isEnabled || !isCompactModeEnabled) {
-            isExpanded = false
+        chipBgAlpha = Settings.System.getIntForUser(
+            contentResolver,
+            ONGOING_CHIP_BG_ALPHA,
+            100,
+            UserHandle.USER_CURRENT
+        ).coerceIn(0, 100)
+
+        if (!isEnabled || !isCompactModeEnabled) { 
+	   isExpanded = false
         }
 
         if (showMediaProgress && !wasShowingMediaProgress) {
@@ -913,6 +930,7 @@ class OnGoingActionProgressController(
         private const val ONGOING_COMPACT_MODE_ENABLED = Settings.System.ONGOING_COMPACT_MODE
         private const val ONGOING_CHIP_COLOR_MODE = Settings.System.ONGOING_CHIP_COLOR_MODE
         private const val MEDIA_WAVEFORM_SEEKBAR = Settings.System.MEDIA_WAVEFORM_SEEKBAR
+        private const val ONGOING_CHIP_BG_ALPHA = Settings.System.ONGOING_CHIP_BG_ALPHA
 
         private const val MEDIA_UPDATE_INTERVAL_MS = 1000L
         private const val DEBOUNCE_DELAY_MS = 150L
@@ -946,4 +964,5 @@ data class ProgressState(
     val artistName: String? = null,
     val useWaveformSeekBar: Boolean = false,
     val chipBgColor: Int? = null,
+    val chipBgAlpha: Int = 100,
 )

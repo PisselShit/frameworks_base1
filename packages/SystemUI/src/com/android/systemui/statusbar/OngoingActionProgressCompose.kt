@@ -208,7 +208,9 @@ fun OngoingActionProgress(
 
             else -> {
                 val pv = progressFraction(state)
+                val chipBgAlphaFraction = state.chipBgAlpha.coerceIn(0, 100) / 100f
                 val chipBg = colorResource(android.R.color.system_accent1_500)
+                    .copy(alpha = chipBgAlphaFraction)
                 Row(
                     modifier = Modifier
                         .width(86.dp).height(26.dp)
@@ -806,10 +808,11 @@ private fun MusicChip(
     chipShape: RoundedCornerShape,
     gestureModifier: Modifier,
 ) {
-    val bg = if (state.chipBgColor != null)
+    val chipBgAlphaFraction = state.chipBgAlpha.coerceIn(0, 100) / 100f
+    val chipBg = (if (state.chipBgColor != null)
         Color(state.chipBgColor)
     else
-        colorResource(android.R.color.system_accent1_500)
+        colorResource(android.R.color.system_accent1_500)).copy(alpha = chipBgAlphaFraction)
 
     val text = if (state.chipBgColor != null &&
             ColorUtils.calculateLuminance(state.chipBgColor) >= CHIP_TEXT_LUMINANCE_THRESHOLD)
@@ -825,7 +828,7 @@ private fun MusicChip(
             .widthIn(min = 55.dp, max = 90.dp)
             .padding(start = 4.dp)
             .clip(chipShape)
-            .background(bg)
+            .background(chipBg)
             .padding(horizontal = 5.dp, vertical = 3.dp)
             .then(gestureModifier),
         verticalAlignment = Alignment.CenterVertically,
@@ -956,6 +959,7 @@ class OnGoingActionProgressComposeController(
                     artistName = s.artistName,
                     useWaveformSeekBar = s.useWaveformSeekBar,
                     chipBgColor = s.chipBgColor,
+		    chipBgAlpha = s.chipBgAlpha,
                 )
             }
         }

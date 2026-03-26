@@ -7870,6 +7870,11 @@ public final class Settings {
          * @hide
          */
         public static final String ONGOING_COMPACT_MODE = "ongoing_compact_mode";
+
+	/**
+	 * @hide
+	 */
+	public static final String ONGOING_CHIP_BG_ALPHA = "ongoing_chip_bg_alpha";
         
         /**
          * Gradient on QS tiles
