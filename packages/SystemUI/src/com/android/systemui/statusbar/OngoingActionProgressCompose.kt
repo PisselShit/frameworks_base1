@@ -76,6 +76,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
@@ -135,15 +136,20 @@ fun OngoingActionProgress(
     val accent = MaterialTheme.colorScheme.primary
     val chipShape = RoundedCornerShape(24.dp)
 
-    var showPlayer by remember { mutableStateOf<Boolean?>(null) }
+    var showPlayer by remember { mutableStateOf(false) }
+	var dismissingPlayer by remember { mutableStateOf(false) }
 
     LaunchedEffect(state.showMediaControls) {
-        if (state.showMediaControls) {
-            showPlayer = true
-        } else if (showPlayer == true) {
-            showPlayer = false
-        }
-    }
+	    if (state.showMediaControls) {
+	        dismissingPlayer = false
+	        showPlayer = true
+	    } else if (showPlayer) {
+	        dismissingPlayer = true
+	        delay(350L)
+	        showPlayer = false
+	        dismissingPlayer = false
+	    }
+	}
 
     if (!state.isVisible) return
 
@@ -242,20 +248,20 @@ fun OngoingActionProgress(
             }
         }
 
-        if (showPlayer != null) {
+        if (showPlayer) {
             Popup(
                 alignment = Alignment.BottomCenter,
                 onDismissRequest = { controller.onMediaMenuDismiss() },
                 properties = PopupProperties(focusable = false)
             ) {
                 AnimatedMiniMediaPlayer(
-                    state = state,
-                    isOpening = showPlayer == true,
-                    onAnimationEnd = { showPlayer = null },
+                    isDismissing = dismissingPlayer,
+                    onAnimationEnd = {/* no-op, delay handled above */ },
                     onPrev = { controller.onMediaAction(0) },
                     onPlayPause = { controller.onMediaAction(1) },
                     onNext = { controller.onMediaAction(2) },
                     onSeek = { controller.onSeek(it) },
+                    state = state,
                 )
             }
         }
@@ -286,30 +292,84 @@ private fun BitmapImage(
 
 @Composable
 private fun AnimatedMiniMediaPlayer(
-    state: ProgressState,
-    isOpening: Boolean,
+    isDismissing: Boolean,
     onAnimationEnd: () -> Unit,
     onPrev: () -> Unit,
     onPlayPause: () -> Unit,
     onNext: () -> Unit,
     onSeek: (Float) -> Unit,
+    state: ProgressState,
 ) {
-    val scaleAnim = remember { Animatable(0.92f) }
+    val scaleAnim = remember { Animatable(0.86f) }
     val alphaAnim = remember { Animatable(0f) }
-    val translateAnim = remember { Animatable(24f) }
+    val translateAnim = remember { Animatable(-28f) }
+    val rotateAnim = remember { Animatable(-1.5f) }
 
-    LaunchedEffect(isOpening) {
-        if (isOpening) {
-            scaleAnim.animateTo(1f,
-                spring(dampingRatio = Spring.DampingRatioMediumBouncy,
-                    stiffness = Spring.StiffnessMedium))
-            alphaAnim.animateTo(1f, tween(EXPAND_DURATION_MS, easing = FastOutSlowInEasing))
-            translateAnim.animateTo(0f,
-                tween(EXPAND_DURATION_MS, easing = FastOutSlowInEasing))
+    LaunchedEffect(isDismissing) {
+        if (!isDismissing) {
+            launch {
+                alphaAnim.animateTo(
+                    1f,
+                    tween(durationMillis = 180, easing = FastOutSlowInEasing)
+                )
+            }
+            launch {
+                translateAnim.animateTo(
+                    0f,
+                    spring(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessMedium,
+                    )
+                )
+            }
+            launch {
+                delay(20L)
+                scaleAnim.animateTo(
+                    1f,
+                    spring(
+                        dampingRatio = Spring.DampingRatioLowBouncy,
+                        stiffness = Spring.StiffnessMediumLow,
+                    )
+                )
+            }
+            launch {
+                rotateAnim.animateTo(
+                    0f,
+                    spring(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessMedium,
+                    )
+                )
+            }
         } else {
-            scaleAnim.animateTo(0.94f, tween(COLLAPSE_DURATION_MS, easing = LinearOutSlowInEasing))
-            alphaAnim.animateTo(0f, tween(COLLAPSE_DURATION_MS, easing = LinearOutSlowInEasing))
-            translateAnim.animateTo(16f, tween(COLLAPSE_DURATION_MS, easing = LinearOutSlowInEasing))
+            launch {
+                alphaAnim.animateTo(
+                    0f,
+                    tween(durationMillis = 200, easing = LinearOutSlowInEasing)
+                )
+            }
+            launch {
+                scaleAnim.animateTo(
+                    0.90f,
+                    spring(
+                        dampingRatio = Spring.DampingRatioNoBouncy,
+                        stiffness = Spring.StiffnessMedium,
+                    )
+                )
+            }
+            launch {
+                translateAnim.animateTo(
+                    -22f,
+                    tween(durationMillis = 220, easing = LinearOutSlowInEasing)
+                )
+            }
+            launch {
+                rotateAnim.animateTo(
+                    1.2f,
+                    tween(durationMillis = 200, easing = LinearOutSlowInEasing)
+                )
+            }
+            delay(240L)
             onAnimationEnd()
         }
     }
@@ -320,6 +380,8 @@ private fun AnimatedMiniMediaPlayer(
             scaleY = scaleAnim.value
             alpha = alphaAnim.value
             translationY = translateAnim.value
+            rotationZ = rotateAnim.value
+            transformOrigin = TransformOrigin(0.5f, 0f)
         }
     ) {
         MiniMediaPlayer(state, onPrev, onPlayPause, onNext, onSeek)
